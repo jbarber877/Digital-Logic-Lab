@@ -1,0 +1,49 @@
+module JK_FF(J, K, clk, reset, Q);
+input J, K, clk, reset;
+output reg Q;
+
+always @(posedge clk or posedge reset) begin 
+    if (reset) 
+        Q <= 0; // Reset to 0
+    else begin
+        case ({J, K})
+            2'b00: Q <= Q;
+            2'b01: Q <= 0;
+            2'b10: Q <= 1;
+            2'b11: Q <= ~Q;
+            default: Q <= 0;
+        endcase
+    end
+end
+endmodule
+
+
+module fourbit_counter(
+input clk,
+output reg [3:0] num
+);
+wire w0, w1, w2, w3, cd, bcd;
+wire reset;
+
+// Reset when the count reaches 1001 (9)
+assign reset = (num == 4'b1001);
+
+JK_FF bitone(1, 1, clk, reset, w0);
+JK_FF bittwo(w0, w0, clk, reset, w1);
+and(cd, w0, w1);
+JK_FF bitthree(cd, cd, clk, reset, w2);
+and(bcd, cd, w2);
+JK_FF bitfour(bcd, bcd, clk, reset, w3);
+
+always @(posedge clk or posedge reset) begin
+    if (reset)
+        num <= 4'b0001; // Reset to 1 instead of 0
+    else begin
+        num[0] = 1;
+        num[1] = w1;
+        num[2] = w2;
+        num[3] = w3;
+    end
+end
+
+endmodule
