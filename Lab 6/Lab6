@@ -17,8 +17,31 @@ always @(posedge clk or posedge reset) begin
 end
 endmodule
 
-
 module fourbit_counter(
+input clk,
+output reg [3:0] num
+);
+wire w0, w1, w2, w3, cd, bcd;
+
+JK_FF bitone(1, 1, clk, reset, w0);
+JK_FF bittwo(w0, w0, clk, reset, w1);
+and(cd, w0, w1);
+JK_FF bitthree(cd, cd, clk, reset, w2);
+and(bcd, cd, w2);
+JK_FF bitfour(bcd, bcd, clk, reset, w3);
+
+always @(posedge clk or posedge reset) begin
+    begin
+        num[0] = 1;
+        num[1] = w1;
+        num[2] = w2;
+        num[3] = w3;
+    end
+end
+endmodule
+
+
+module odd_mod_ten_counter(
 input clk,
 output reg [3:0] num
 );
